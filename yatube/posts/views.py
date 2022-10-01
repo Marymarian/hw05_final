@@ -3,7 +3,6 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User, Follow
 from .forms import PostForm, CommentForm
-from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 from django.urls import reverse
 
@@ -65,7 +64,7 @@ def post_detail(request, post_id):
         'post': post_user,
         'form': form,
         'comments': comments
-        }
+    }
     return render(request, 'posts/post_detail.html', context)
 
 

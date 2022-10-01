@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django import forms
 from posts.models import Post, Group, User, Comment, Follow
-from http import HTTPStatus
 from django.core.cache import cache
 
 cache.clear()
