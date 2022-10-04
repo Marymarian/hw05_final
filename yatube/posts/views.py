@@ -7,26 +7,23 @@ from django.urls import reverse
 
 
 def pagination(queryset, request):
+    """Пагинатор."""
     paginator = Paginator(queryset, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return page_obj
 
 
-"""Главная страница."""
-
-
 def index(request):
+    """Функционал главной страницы сайта."""
     context = {
         'page_obj': pagination(Post.objects.all(), request)
     }
     return render(request, 'posts/index.html', context)
 
 
-"""Страница - список постов по группам."""
-
-
 def group_posts(request, slug):
+    """Записи группы."""
     group = get_object_or_404(Group, slug=slug)
     context = {
         'group': group,
@@ -37,6 +34,7 @@ def group_posts(request, slug):
 
 
 def profile(request, username):
+    """Профиль пользователя."""
     author = get_object_or_404(User, username=username)
     following = (
         request.user.is_authenticated and author.following.filter(
@@ -53,6 +51,7 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
+    """Станица поста с информацией."""
     post_user = get_object_or_404(Post, id=post_id)
     form = CommentForm(request.POST or None)
     comments = post_user.comments.all()
@@ -66,6 +65,7 @@ def post_detail(request, post_id):
 
 @login_required
 def post_create(request):
+    """Добавление поста."""
     form = PostForm(request.POST or None, files=request.FILES or None)
     if form.is_valid():
         form = form.save(commit=False)
@@ -77,6 +77,7 @@ def post_create(request):
 
 @login_required
 def post_edit(request, post_id):
+    """Редактирование поста."""
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
         return redirect('posts:post_detail', post_id=post.pk)
@@ -94,6 +95,7 @@ def post_edit(request, post_id):
 
 
 def page_not_found(request):
+    """Станица 404"""
     return render(
         request, 'posts/404.html', {'path': request.path}, status=404
     )
@@ -101,6 +103,7 @@ def page_not_found(request):
 
 @login_required
 def add_comment(request, post_id):
+    """Добавление комментария"""
     form = CommentForm(request.POST or None)
     post = get_object_or_404(Post, id=post_id)
     if form.is_valid():
@@ -113,6 +116,7 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
+    """Текущие подписки."""
     post_list = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(post_list, 20)
     page_namber = request.GET.get('page_obj')
@@ -123,15 +127,16 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
+    """Подписка."""
     author = get_object_or_404(User, username=username)
-    follower_user = Follow.objects.filter(user=request.user, author=author)
-    if request.user != author and not follower_user.exists():
+    if request.user != author:
         Follow.objects.get_or_create(user=request.user, author=author)
     return redirect(reverse('posts:profile', args=[username]))
 
 
 @login_required
 def profile_unfollow(request, username):
+    """Отписка."""
     author = get_object_or_404(User, username=username)
     Follow.objects.filter(user=request.user, author=author).delete()
     return redirect('posts:profile', username=author)

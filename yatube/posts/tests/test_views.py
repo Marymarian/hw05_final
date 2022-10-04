@@ -4,8 +4,6 @@ from django import forms
 from posts.models import Post, Group, User, Comment, Follow
 from django.core.cache import cache
 
-cache.clear()
-
 
 class PaginatorViewsTest(TestCase):
     @classmethod
@@ -28,12 +26,12 @@ class PaginatorViewsTest(TestCase):
         self.authorized_client.force_login(self.user)
 
     def test_first_page_contains_ten_records(self):
-        # Проверка: количество постов на первой странице равно 10.
+        """Проверка: количество постов на первой странице равно 10."""
         response = self.client.get(reverse('posts:index'))
         self.assertEqual(len(response.context['page_obj']), 10)
 
     def test_second_page_contains_three_records(self):
-        # Проверка: на второй странице должно быть три поста.
+        """Проверка: на второй странице должно быть три поста."""
         response = self.client.get(reverse('posts:index') + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
 
@@ -60,7 +58,6 @@ class PostURLTests(TestCase):
         self.authorized_client_author = Client()
         self.authorized_client_author.force_login(PostURLTests.user)
 
-    # Проверяем используемые шаблоны
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         templates_pages_names = {

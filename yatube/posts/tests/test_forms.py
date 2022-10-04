@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from posts.forms import PostForm
+from posts.forms import PostForm, CommentForm
 from posts.models import Post, Group, User, Comment
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -33,6 +33,7 @@ class PostCreateFormTests(TestCase):
             text='Коммент'
         )
         cls.form = PostForm()
+        cls.form = CommentForm()
 
     @classmethod
     def tearDownClass(cls):
@@ -75,7 +76,6 @@ class PostCreateFormTests(TestCase):
         self.assertRedirects(response, reverse(
             'posts:profile', kwargs={'username': 'Luchik'})
         )
-        # image_post = Post.objects.get(image='posts/small.gif')
         self.assertTrue(
             Post.objects.filter(
                 text=form_data['text'],
@@ -98,7 +98,6 @@ class PostCreateFormTests(TestCase):
         form_data = {
             'text': 'Измененный текст',
             'group': self.group.pk,
-            'comments': self.comment
         }
         response_edit = self.authorized_client_author.post(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}),
@@ -109,8 +108,20 @@ class PostCreateFormTests(TestCase):
         self.assertEqual(response_edit.status_code, HTTPStatus.OK.value)
         self.assertEqual(change_post.text, form_data['text'])
         self.assertEqual(change_post.group.pk, form_data['group'])
+
+    def test_comment_form(self):
+        comment_count = Comment.objects.count()
+        form_data = {
+            'text': 'Комментарий'
+        }
+        self.authorized_client.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.pk}),
+            data=form_data,
+            follow=True,
+        )
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
         self.assertTrue(
-            Post.objects.filter(
-                comments=form_data['comments']
+            Comment.objects.filter(
+                text=form_data['text']
             ).exists()
         )
