@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from posts.forms import PostForm
-from posts.models import Post, Group, User
+from posts.models import Post, Group, User, Comment
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 import shutil
@@ -26,6 +26,11 @@ class PostCreateFormTests(TestCase):
         cls.post = Post.objects.create(
             author=cls.user,
             text='Тестовый пост',
+        )
+        cls.comment = Comment.objects.create(
+            post=cls.post,
+            author=cls.user,
+            text='Коммент'
         )
         cls.form = PostForm()
 
@@ -92,7 +97,8 @@ class PostCreateFormTests(TestCase):
         reverse('posts:post_edit', kwargs={'post_id': self.post.pk})
         form_data = {
             'text': 'Измененный текст',
-            'group': self.group.pk
+            'group': self.group.pk,
+            'comments': self.comment
         }
         response_edit = self.authorized_client_author.post(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}),
@@ -103,3 +109,8 @@ class PostCreateFormTests(TestCase):
         self.assertEqual(response_edit.status_code, HTTPStatus.OK.value)
         self.assertEqual(change_post.text, form_data['text'])
         self.assertEqual(change_post.group.pk, form_data['group'])
+        self.assertTrue(
+            Post.objects.filter(
+                comments=form_data['comments']
+            ).exists()
+        )

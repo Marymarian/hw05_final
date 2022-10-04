@@ -3,10 +3,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User, Follow
 from .forms import PostForm, CommentForm
-from django.core.cache import cache
 from django.urls import reverse
-
-cache.clear()
 
 
 def pagination(queryset, request):
@@ -16,7 +13,7 @@ def pagination(queryset, request):
     return page_obj
 
 
-# Главная страница
+"""Главная страница."""
 
 
 def index(request):
@@ -25,7 +22,8 @@ def index(request):
     }
     return render(request, 'posts/index.html', context)
 
-# Страница со списком постов по группам
+
+"""Страница - список постов по группам."""
 
 
 def group_posts(request, slug):
@@ -40,12 +38,10 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    if request.user.is_authenticated:
-        following = Follow.objects.filter(
-            user=request.user, author=author
-        ).exists()
-    else:
-        following = False
+    following = (
+        request.user.is_authenticated and author.following.filter(
+            user=request.user).exists()
+    )
     profile = author
     context = {
         'author': author,
@@ -127,18 +123,15 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    user = request.user
-    author = User.objects.get(username=username)
-    follower_user = Follow.objects.filter(user=user, author=author)
-    if user != author and not follower_user.exists():
-        Follow.objects.create(user=user, author=author)
+    author = get_object_or_404(User, username=username)
+    follower_user = Follow.objects.filter(user=request.user, author=author)
+    if request.user != author and not follower_user.exists():
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect(reverse('posts:profile', args=[username]))
 
 
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    follower_user = Follow.objects.filter(user=request.user, author=author)
-    if follower_user.exists():
-        follower_user.delete()
+    Follow.objects.filter(user=request.user, author=author).delete()
     return redirect('posts:profile', username=author)
