@@ -268,7 +268,7 @@ class FollowTests(TestCase):
         self.client_auth_follower.get(reverse('posts:profile_unfollow',
                                       kwargs={'username':
                                               self.user_following.username}))
-        self.assertEqual(
+        self.assertFalse(
             Follow.objects.filter(
                 user=self.user_follower, author=self.user_following
             ).exists(), False
@@ -278,11 +278,11 @@ class FollowTests(TestCase):
         """Запись появляется в ленте подписчиков"""
         Follow.objects.create(user=self.user_follower,
                               author=self.user_following)
-        response = self.client_auth_follower.get('/follow/')
-        post_text_0 = response.context['page_obj'][0].text
+        reverse = self.client_auth_follower.get('/follow/')
+        post_text_0 = reverse.context['page_obj'][0].text
         self.assertEqual(post_text_0, 'Тестовый пост')
-        response = self.client_auth_following.get('/follow/')
-        self.assertNotContains(response, 'Тестовый пост')
+        reverse = self.client_auth_following.get('/follow/')
+        self.assertNotContains(reverse, 'Тестовый пост')
 
     def test_not_follow_yourself(self):
         """Нельзя подписаться на самого себя, т.е. follower и following
@@ -291,7 +291,7 @@ class FollowTests(TestCase):
                                               kwargs={'username':
                                                       self.user_following.
                                                       username}))
-        self.assertEqual(
+        self.assertFalse(
             Follow.objects.filter(
                 user=self.user_following, author=self.user_following
             ).exists(), False
