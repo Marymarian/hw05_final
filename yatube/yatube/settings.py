@@ -25,15 +25,12 @@ SECRET_KEY = 'h!bjp2ol_sxn1zll$#71n)0cgs_&p(=2e&=6(95)njo%g)*rm*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-"""ALLOWED_HOSTS = [
+ALLOWED_HOSTS = [
     '158.160.31.86',
     'localhost',
     '127.0.0.1',
     '[::1]',
     'testserver',
-]"""
-
-ALLOWED_HOSTS = [
     'www.vtorushinamv.pythonanywhere.com',
     'vtorushinamv.pythonanywhere.com',
 ]
@@ -53,7 +50,6 @@ INSTALLED_APPS = [
     'about.apps.AboutConfig',
     'posts.apps.PostsConfig',
     'sorl.thumbnail',
-    'django.contrib.staticfiles',
     'debug_toolbar',
 ]
 
