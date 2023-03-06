@@ -1,3 +1,26 @@
-# hw05_final
+# Yatube - социальная сеть для публикации личных дневников.
+_Социальная сеть для публикации личных дневников. Реализована пагинация постов и кэширование данных, так же реализована регистрация пользователей с верификацией данных, сменой и восстановлением пароля через почту. Написаны тесты на unittest, проверяющие работу сервиса._
 
-[![CI](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml)
+# Запуск проекта
+
+Установите и активируйте виртуальное окружение. Установите зависимости из файла requirements.txt:
+```
+pip install -r requirements.txt
+```
+Выполнить миграции:
+```
+python manage.py migrate
+```
+Создать пользователя:
+```
+python manage.py createsuperuser
+```
+```
+python manage.py runserver
+```
+
+# Технологии
+Python 3.7, Django 2.2.19, SQLite
+
+# Авторы
+Марина Чухарева
